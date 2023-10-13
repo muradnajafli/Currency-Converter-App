@@ -35,7 +35,6 @@ class ConverterFragment : Fragment() {
 
         val currencyCodes = resources.getStringArray(R.array.currency_codes)
 
-        // Temel para birimini seçme işlemini burada yapmayın, Spinner'dan seçildiğinde otomatik olarak ViewModel içinde ayarlanmalıdır.
         binding.spFromCurrency.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedCurrency = currencyCodes[position]
@@ -43,11 +42,9 @@ class ConverterFragment : Fragment() {
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Seçim yapılmadığında yapılacak işlem
             }
         }
 
-        // Dönüştürülecek para birimini seçme işlemini de burada yapmayın, yine Spinner'dan seçildiğinde ViewModel içinde ayarlanmalıdır.
         binding.spToCurrency.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedCurrency = currencyCodes[position]
@@ -55,7 +52,6 @@ class ConverterFragment : Fragment() {
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Seçim yapılmadığında yapılacak işlem
             }
         }
 
