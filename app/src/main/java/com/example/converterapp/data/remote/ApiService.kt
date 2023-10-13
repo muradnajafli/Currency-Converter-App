@@ -8,7 +8,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
-
     @GET("{date}")
     suspend fun getCurrenciesWithDate(
         @Path("date") date: String,
@@ -16,10 +15,8 @@ interface ApiService {
         @Query("base") baseCurrency: String
     ): Response<CurrencyResponse>
 
-    //"http://api.ratesapi.io/api/latest?base=$baseCurrency&symbols=$convertedToCurrency"
-
     @GET("latest")
-    suspend fun getRates(
+    suspend fun getCurrencyRates(
         @Query("access_key") apiKey: String,
         @Query("base") baseCurrency: String,
         @Query("symbols") convertedToCurrency: String

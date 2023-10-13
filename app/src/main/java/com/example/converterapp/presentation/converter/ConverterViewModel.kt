@@ -1,27 +1,17 @@
 package com.example.converterapp.presentation.converter
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.converterapp.data.remote.ApiClient
-import com.example.converterapp.data.utils.API_KEY
-import com.example.converterapp.domain.mapper.CurrencyMapper
-import com.example.converterapp.domain.usecase.CurrencyConversionUseCase
+import com.example.converterapp.domain.usecase.CurrencyConverter
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 class ConverterViewModel : ViewModel() {
 
-    private val _baseCurrency = MutableLiveData("EUR")
-    val baseCurrency: LiveData<String> get() = _baseCurrency
-
     private val _convertedToCurrency = MutableLiveData("USD")
-    val convertedToCurrency: LiveData<String> get() = _convertedToCurrency
 
-    private val _conversionRate = MutableLiveData<Float?>()
-    val conversionRate: LiveData<Float?> get() = _conversionRate
+    private val _conversionRate = MutableLiveData<Double?>()
 
     private val _convertedValue = MutableLiveData<String>()
     val convertedValue: LiveData<String> get() = _convertedValue
@@ -29,28 +19,20 @@ class ConverterViewModel : ViewModel() {
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> get() = _errorMessage
 
-    private val currencyConversionUseCase = CurrencyConversionUseCase()
-
-    fun setBaseCurrency(currency: String) {
-        _baseCurrency.value = currency
-        fetchConversionRate()
-
-    }
+    private val currencyConverter = CurrencyConverter()
 
     fun setConvertedToCurrency(currency: String) {
         _convertedToCurrency.value = currency
         fetchConversionRate()
     }
 
-    fun fetchConversionRate() {
-        val baseCurrency = _baseCurrency.value
+    private fun fetchConversionRate() {
         val convertedToCurrency = _convertedToCurrency.value
 
-        if (!baseCurrency.isNullOrEmpty() && !convertedToCurrency.isNullOrEmpty()) {
+        if (!convertedToCurrency.isNullOrEmpty()) {
             viewModelScope.launch {
                 try {
-                    val conversionRate = currencyConversionUseCase.convertCurrency(baseCurrency, convertedToCurrency)
-                    Log.i("LOG", conversionRate.toString())
+                    val conversionRate = currencyConverter.convertCurrency(convertedToCurrency)
                     if (conversionRate != null) {
                         _conversionRate.value = conversionRate
                     } else {
@@ -66,11 +48,10 @@ class ConverterViewModel : ViewModel() {
     fun convertValue(amountStr: String?) {
         if (!amountStr.isNullOrEmpty()) {
             val amount = amountStr.toFloat()
-            val conversion = amount * (_conversionRate.value ?: 0f)
+            val conversion = amount * (_conversionRate.value ?: 0.0)
             _convertedValue.value = conversion.toString()
         } else {
             _errorMessage.value = "Please enter an amount"
         }
     }
 }
-

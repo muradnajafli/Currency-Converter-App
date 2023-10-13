@@ -172,4 +172,9 @@
                 <item>ZMW</item>
                 <item>ZWL</item>
         </string-array>
+
+        <string-array name="eur_code">
+                <item>EUR</item>
+        </string-array>
+
 </resources>

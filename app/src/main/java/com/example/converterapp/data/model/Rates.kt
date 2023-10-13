@@ -1,6 +1,5 @@
 package com.example.converterapp.data.model
 
-
 import com.google.gson.annotations.SerializedName
 
 data class Rates(
