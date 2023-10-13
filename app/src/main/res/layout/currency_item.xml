@@ -1,0 +1,64 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textViewName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Name"
+        android:textColor="#FFFFFF"
+        tools:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewCurrentLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current Rate: "
+        android:textColor="#FFFFFF"
+        tools:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewName" />
+
+    <TextView
+        android:id="@+id/textViewCurrentRate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="€0.00"
+        android:textColor="#FFFFFF"
+        tools:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@+id/textViewCurrentLabel"
+        app:layout_constraintTop_toTopOf="@+id/textViewCurrentLabel" />
+
+    <TextView
+        android:id="@+id/textViewChangesLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Changes (24h):"
+        android:textColor="#FFFFFF"
+        tools:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCurrentLabel" />
+
+    <TextView
+        android:id="@+id/textViewChanges"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+0.00%"
+        android:textColor="#FFFFFF"
+        tools:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@id/textViewChangesLabel"
+        app:layout_constraintTop_toTopOf="@id/textViewChangesLabel" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
