@@ -2,7 +2,6 @@ package com.example.converterapp.presentation.converter
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.converterapp.domain.repository.ConverterRepository
 import com.example.converterapp.domain.usecase.ConvertCurrencyUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

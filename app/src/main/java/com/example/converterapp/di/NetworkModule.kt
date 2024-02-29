@@ -1,13 +1,11 @@
 package com.example.converterapp.di
 
-import android.provider.SyncStateContract
 import com.example.converterapp.data.remote.ApiService
 import com.example.converterapp.data.utils.Constants
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
