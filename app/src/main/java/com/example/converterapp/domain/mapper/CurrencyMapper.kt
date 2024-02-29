@@ -3,8 +3,9 @@ package com.example.converterapp.domain.mapper
 import android.graphics.Color
 import com.example.converterapp.domain.model.CurrencyEntity
 import com.example.converterapp.data.model.Rates
+import dagger.Provides
 
-class CurrencyMapper {
+object CurrencyMapper {
     fun mapRatesToCurrencyEntities(rates: Rates?): List<CurrencyEntity> {
         return rates?.javaClass?.declaredFields?.map { field ->
             field.isAccessible = true

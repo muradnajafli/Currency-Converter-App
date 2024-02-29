@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Converter App</string>
-        <string-array name="currency_codes">
+    <string name="converter">Converter</string>
+    <string name="home">Home</string>
+    <string-array name="currency_codes">
                 <item>AED</item>
                 <item>AFN</item>
                 <item>ALL</item>

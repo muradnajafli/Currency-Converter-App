@@ -10,24 +10,28 @@ import com.example.converterapp.databinding.CurrencyItemBinding
 import com.example.converterapp.domain.model.CurrencyEntity
 
 
-class CurrencyAdapter(val context: Context) : RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>() {
-    var currencyList: List<CurrencyEntity> = emptyList()
-
-    inner class CurrencyViewHolder(val binding: CurrencyItemBinding) : ViewHolder(binding.root)
+class CurrencyAdapter : RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>() {
+    private var currencyList: List<CurrencyEntity> = emptyList()
+    class CurrencyViewHolder(
+        private val binding: CurrencyItemBinding
+    ) : ViewHolder(binding.root) {
+        fun bind(currency: CurrencyEntity) {
+            binding.textViewName.text = currency.name
+            binding.textViewChanges.text = currency.rateChange.toString()
+            binding.textViewCurrentRate.text = currency.currentRate.toString()
+            binding.root.setBackgroundColor(currency.color)
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CurrencyViewHolder {
-        val binding = CurrencyItemBinding.inflate(LayoutInflater.from(context), parent, false)
+        val binding =
+            CurrencyItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return CurrencyViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: CurrencyViewHolder, position: Int) {
         val currency = currencyList[position]
-        val currencyHolder = holder.binding
-        currencyHolder.textViewName.text = currency.name
-        currencyHolder.textViewChanges.text = currency.rateChange.toString()
-        currencyHolder.textViewCurrentRate.text = currency.currentRate.toString()
-        currencyHolder.root.setBackgroundColor(currency.color)
-
+        holder.bind(currency)
     }
 
     override fun getItemCount() = currencyList.size

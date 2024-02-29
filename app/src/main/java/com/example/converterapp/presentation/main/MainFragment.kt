@@ -6,12 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.converterapp.data.utils.API_KEY
+import com.example.converterapp.data.utils.Constants.API_KEY
 import com.example.converterapp.databinding.FragmentMainBinding
 import com.example.converterapp.presentation.adapter.CurrencyAdapter
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainFragment : Fragment() {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
@@ -23,16 +29,18 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
-
-        setupRecyclerView()
-        fetchData()
-        observeEvents()
-
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupRecyclerView()
+        fetchData()
+        observeEvents()
+    }
+
     private fun setupRecyclerView() {
-        currencyAdapter = CurrencyAdapter(requireContext())
+        currencyAdapter = CurrencyAdapter()
         binding.recyclerView.adapter = currencyAdapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -45,21 +53,26 @@ class MainFragment : Fragment() {
     }
 
     private fun observeEvents() {
-        viewModel.currencyData.observe(viewLifecycleOwner) { currencyList ->
-            currencyAdapter.updateData(currencyList)
-        }
-
-        viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading) {
-                binding.progressBarMain.visibility = View.VISIBLE
-            } else {
-                binding.progressBarMain.visibility = View.GONE
-            }
-        }
-
-        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-            binding.errorMessageTv.visibility = View.VISIBLE
-            binding.errorMessageTv.text = errorMessage.toString()
+        lifecycleScope.launch {
+            combine(
+                viewModel.currencyData,
+                viewModel.loading,
+                viewModel.error
+            ) { currencyList, isLoading, errorMessage ->
+                Triple(currencyList, isLoading, errorMessage)
+            }.flowWithLifecycle(lifecycle)
+                .collect { (currencyList, isLoading, errorMessage) ->
+                    currencyAdapter.updateData(currencyList)
+                    if (isLoading) {
+                        binding.progressBarMain.visibility = View.VISIBLE
+                    } else {
+                        binding.progressBarMain.visibility = View.GONE
+                    }
+                    if (errorMessage != null) {
+                        binding.errorMessageTv.visibility = View.VISIBLE
+                        binding.errorMessageTv.text = errorMessage
+                    }
+                }
         }
     }
 

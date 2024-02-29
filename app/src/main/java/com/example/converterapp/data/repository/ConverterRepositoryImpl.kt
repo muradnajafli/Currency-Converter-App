@@ -1,18 +1,20 @@
-package com.example.converterapp.domain.usecase
+package com.example.converterapp.data.repository
 
 import android.util.Log
 import com.example.converterapp.data.model.Rates
-import com.example.converterapp.data.remote.ApiClient
 import com.example.converterapp.data.remote.ApiService
-import com.example.converterapp.data.utils.API_KEY
+import com.example.converterapp.data.utils.Constants
+import com.example.converterapp.domain.repository.ConverterRepository
+import javax.inject.Inject
 
-class CurrencyConverter {
-    private val apiService: ApiService = ApiClient.provideApi()
+class ConverterRepositoryImpl @Inject constructor(
+    private val apiService: ApiService
+) : ConverterRepository {
 
-    suspend fun convertCurrency(convertedToCurrency: String): Double? {
+    override suspend fun convertCurrency(convertedToCurrency: String): Double? {
         val formattedCurrency = formatCurrencyCode(convertedToCurrency)
         return try {
-            val response = apiService.getCurrencyRates(API_KEY, "EUR", formattedCurrency)
+            val response = apiService.getCurrencyRates(Constants.API_KEY, "EUR", formattedCurrency)
             if (response.isSuccessful) {
                 val data = response.body()
                 val rates = data?.rates
@@ -28,11 +30,11 @@ class CurrencyConverter {
         }
     }
 
-    private fun formatCurrencyCode(currencyCode: String): String {
+    override fun formatCurrencyCode(currencyCode: String): String {
         return currencyCode.substring(0, 1).lowercase() + currencyCode.substring(1)
     }
 
-    private fun getRateByCurrencyCode(rates: Rates, currencyCode: String): Double? {
+    override fun getRateByCurrencyCode(rates: Rates, currencyCode: String): Double? {
         val field = rates.javaClass.getDeclaredField(currencyCode)
         field.isAccessible = true
         return field.get(rates) as? Double

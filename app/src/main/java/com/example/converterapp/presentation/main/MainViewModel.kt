@@ -1,45 +1,47 @@
 package com.example.converterapp.presentation.main
 
 import android.graphics.Color
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.converterapp.data.remote.ApiClient
-import com.example.converterapp.data.repository.CurrencyRepository
-import com.example.converterapp.data.utils.MY_GREEN
-import com.example.converterapp.data.utils.MY_RED
+import com.example.converterapp.data.utils.Constants
 import com.example.converterapp.domain.mapper.CurrencyMapper
 import com.example.converterapp.domain.model.CurrencyEntity
-import kotlinx.coroutines.Dispatchers
+import com.example.converterapp.domain.usecase.GetCurrenciesUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
-class MainViewModel : ViewModel() {
-    private val _currencyData = MutableLiveData<List<CurrencyEntity>>()
-    val currencyData: LiveData<List<CurrencyEntity>> = _currencyData
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private val getCurrenciesUseCase: GetCurrenciesUseCase,
+) : ViewModel() {
 
-    private val _loading = MutableLiveData<Boolean>()
-    val loading: LiveData<Boolean> = _loading
+    private val _currencyData = MutableStateFlow<List<CurrencyEntity>>(emptyList())
+    val currencyData = _currencyData.asStateFlow()
 
-    private val _error = MutableLiveData<String>()
-    val error: LiveData<String> = _error
+    private val _loading = MutableStateFlow(false)
+    val loading = _loading.asStateFlow()
 
-    private val currencyRepository = CurrencyRepository(ApiClient.provideApi())
-    private val currencyMapper = CurrencyMapper()
+    private val _error = MutableStateFlow<String?>(null)
+    val error = _error.asStateFlow()
+
+    private val currencyMapper: CurrencyMapper = CurrencyMapper
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private val currentDate = dateFormat.format(Date())
 
     fun fetchCurrencies(apiKey: String, baseCurrency: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
-                _loading.postValue(true)
+                _loading.value = true
 
-                val currentRatesResponse = currencyRepository.getCurrencies(currentDate, apiKey, baseCurrency)
+                val currentRatesResponse = getCurrenciesUseCase(currentDate, apiKey, baseCurrency)
                 if (currentRatesResponse.isSuccessful) {
                     val currentRates = currentRatesResponse.body()?.rates
 
@@ -47,7 +49,8 @@ class MainViewModel : ViewModel() {
                     calendar.add(Calendar.DATE, -1)
                     val previousDate = dateFormat.format(calendar.time)
 
-                    val previousRatesResponse = currencyRepository.getCurrencies(previousDate, apiKey, baseCurrency)
+                    val previousRatesResponse =
+                        getCurrenciesUseCase(previousDate, apiKey, baseCurrency)
                     val previousRates = previousRatesResponse.body()?.rates
 
                     if (currentRates != null && previousRates != null) {
@@ -58,23 +61,26 @@ class MainViewModel : ViewModel() {
                             val rateChange = currency.currentRate - previousRate
                             currency.rateChange = rateChange
 
-                            currency.color = if (rateChange >= 0) Color.parseColor(MY_GREEN)
-                            else Color.parseColor(MY_RED)
+                            currency.color = if (rateChange >= 0) Color.parseColor(
+                                Constants.MY_GREEN
+                            )
+                            else Color.parseColor(
+                                Constants.MY_RED
+                            )
 
                         }
-                        _currencyData.postValue(currencyList)
+                        _currencyData.value = currencyList
                     } else {
-                        _error.postValue("No currency data available")
+                        _error.value = "No currency data available"
                     }
                 } else {
-                    _error.postValue("Response is not successful")
+                    _error.value = "Response is not successful"
                 }
             } catch (e: Exception) {
-                _error.postValue("An error occurred: ${e.message}")
+                _error.value = "An error occurred: ${e.message}"
             } finally {
-                _loading.postValue(false)
+                _loading.value = false
             }
         }
     }
 }
-

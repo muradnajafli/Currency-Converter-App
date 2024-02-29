@@ -1,4 +1,4 @@
-package com.example.converterapp.domain.usecase
+package com.example.converterapp.domain.model
 
 import com.example.converterapp.data.model.Rates
 import com.google.gson.annotations.SerializedName

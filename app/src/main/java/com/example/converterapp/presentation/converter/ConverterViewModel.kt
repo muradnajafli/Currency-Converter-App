@@ -1,25 +1,29 @@
 package com.example.converterapp.presentation.converter
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.converterapp.domain.usecase.CurrencyConverter
+import com.example.converterapp.domain.repository.ConverterRepository
+import com.example.converterapp.domain.usecase.ConvertCurrencyUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ConverterViewModel : ViewModel() {
+@HiltViewModel
+class ConverterViewModel @Inject constructor(
+    private val convertCurrencyUseCase: ConvertCurrencyUseCase
+) : ViewModel() {
 
-    private val _convertedToCurrency = MutableLiveData("USD")
+    private val _convertedToCurrency = MutableStateFlow("USD")
 
-    private val _conversionRate = MutableLiveData<Double?>()
+    private val _conversionRate = MutableStateFlow(0.0)
 
-    private val _convertedValue = MutableLiveData<String>()
-    val convertedValue: LiveData<String> get() = _convertedValue
+    private val _convertedValue = MutableStateFlow<String?>("")
+    val convertedValue = _convertedValue.asStateFlow()
 
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<String> get() = _errorMessage
-
-    private val currencyConverter = CurrencyConverter()
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage = _errorMessage.asStateFlow()
 
     fun setConvertedToCurrency(currency: String) {
         _convertedToCurrency.value = currency
@@ -29,10 +33,10 @@ class ConverterViewModel : ViewModel() {
     private fun fetchConversionRate() {
         val convertedToCurrency = _convertedToCurrency.value
 
-        if (!convertedToCurrency.isNullOrEmpty()) {
+        if (convertedToCurrency.isNotEmpty()) {
             viewModelScope.launch {
                 try {
-                    val conversionRate = currencyConverter.convertCurrency(convertedToCurrency)
+                    val conversionRate = convertCurrencyUseCase(convertedToCurrency)
                     if (conversionRate != null) {
                         _conversionRate.value = conversionRate
                     } else {
@@ -44,13 +48,13 @@ class ConverterViewModel : ViewModel() {
             }
         }
     }
-
     fun convertValue(amountStr: String?) {
-        if (!amountStr.isNullOrEmpty()) {
-            val amount = amountStr.toFloat()
-            val conversion = amount * (_conversionRate.value ?: 0.0)
+        amountStr?.toFloatOrNull()?.let { amount ->
+            val conversion = amount * _conversionRate.value
             _convertedValue.value = conversion.toString()
-        } else {
+            _errorMessage.value = null
+        } ?: run {
+            _convertedValue.value = ""
             _errorMessage.value = "Please enter an amount"
         }
     }

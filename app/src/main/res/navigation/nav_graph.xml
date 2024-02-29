@@ -18,5 +18,9 @@
         android:id="@+id/converterFragment"
         android:name="com.example.converterapp.presentation.converter.ConverterFragment"
         android:label="fragment_converter"
-        tools:layout="@layout/fragment_converter" />
+        tools:layout="@layout/fragment_converter" >
+        <action
+            android:id="@+id/action_converterFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+    </fragment>
 </navigation>
